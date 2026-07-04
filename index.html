@@ -394,7 +394,7 @@
 
 <script>
   /* ===== CONFIG — the only lines you should ever need to touch ===== */
-  const TWITCH_CHANNEL = "";                 // e.g. "djsylvester" — enables the live player
+  const TWITCH_CHANNEL = "metasly";          // twitch.tv/metasly — enables the live player
   const APP_DOWNLOAD_URL = "";               // e.g. TestFlight or App Store link when ready
   const BOOKING_EMAIL = "bookings@djsylvester.com";
   /* ================================================================= */
@@ -435,7 +435,7 @@
       if (live) {
         status.innerHTML = `<b>Live for ${text}</b> — pull up.`;
         if (!body.querySelector("iframe")) {
-          const parents = ["djsylvester.com", "www.djsylvester.com", "assiamahs.github.io", "localhost"]
+          const parents = ["djsylvester.com", "www.djsylvester.com", "djsylvester.sylvesterassiamahpm.workers.dev", "assiamahs.github.io", "localhost"]
             .map(p => `parent=${p}`).join("&");
           body.innerHTML = `<iframe src="https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&${parents}&muted=false" allowfullscreen title="DJ Sylvester live on Twitch"></iframe>`;
         }
