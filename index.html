@@ -148,6 +148,14 @@
   .onair.on{background:var(--live);border-color:var(--live);color:#fff;box-shadow:0 0 24px rgba(255,75,75,.5)}
   .live-status{color:var(--muted);font-size:.95rem}
   .live-status b{color:var(--fg)}
+  .yt-link{
+    margin-left:auto;display:none;align-items:center;gap:8px;
+    font-family:"Unbounded",sans-serif;font-weight:700;font-size:.72rem;letter-spacing:1.5px;
+    padding:7px 14px;border-radius:6px;border:1px solid var(--line);color:var(--muted);
+    text-decoration:none;transition:all .2s ease;
+  }
+  .yt-link.on{display:flex}
+  .yt-link:hover{border-color:#FF0000;color:#fff;background:#FF0000}
   .live-body{padding:24px}
   .live-body .placeholder{
     aspect-ratio:16/9;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;
@@ -279,6 +287,7 @@
         <div class="live-head">
           <span class="onair" id="onair">OFF AIR</span>
           <span class="live-status" id="live-status">Not streaming right now — check back or book the next set.</span>
+          <a class="yt-link" id="yt-link" href="#" target="_blank" rel="noopener">▶ YOUTUBE</a>
         </div>
         <div class="live-body" id="live-body">
           <div class="placeholder">
@@ -395,9 +404,17 @@
 <script>
   /* ===== CONFIG — the only lines you should ever need to touch ===== */
   const TWITCH_CHANNEL = "metasly";          // twitch.tv/metasly — enables the live player
+  const YOUTUBE_HANDLE = "clubgirlfm";       // youtube.com/@clubgirlfm — live simulcast link
   const APP_DOWNLOAD_URL = "";               // e.g. TestFlight or App Store link when ready
   const BOOKING_EMAIL = "bookings@djsylvester.com";
   /* ================================================================= */
+
+  // youtube: /live resolves to the stream when live, channel page otherwise
+  if (YOUTUBE_HANDLE) {
+    const yt = document.getElementById("yt-link");
+    yt.href = `https://www.youtube.com/@${YOUTUBE_HANDLE}/live`;
+    yt.classList.add("on");
+  }
 
   // app CTA: switch from early-access mailto to real download link when set
   if (APP_DOWNLOAD_URL) {
