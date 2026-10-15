@@ -4,11 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>DJ Sylvester — Amapiano · Afrobeats · Jersey Club</title>
-<meta name="description" content="DJ Sylvester — amapiano and Jersey Club DJ. Book for events, catch the live stream, and get the app." />
+<meta name="description" content="DJ Sylvester (DJ Sly) — amapiano, afrobeats and Jersey Club DJ in NJ, NYC, Philly and Delaware. Bookings, radio, mixes." />
 <meta property="og:title" content="DJ Sylvester" />
-<meta property="og:description" content="Amapiano · Jersey Club. Bookings, live streams, and the app." />
+<meta property="og:description" content="Amapiano · Afrobeats · Jersey Club. Bookings, radio, mixes." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://djsylvester.com" />
+<meta property="og:url" content="https://www.djsylvester.com" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -60,11 +60,30 @@
   .nav-links .book-link:hover{background:#FFC466}
   @media(max-width:640px){.nav-links{gap:14px}.nav-links li:first-child{display:none}}
 
-  /* live badge in nav — hidden until stream detected */
-  .nav-live{display:none;align-items:center;gap:7px;color:var(--live) !important;font-weight:700}
-  .nav-live.on{display:flex}
+  /* radio player: strip under the nav + a docked video tile (YouTube needs a visible player, 200px minimum) */
+  .nav-player{display:flex;align-items:center;gap:7px}
+  .nav-player .dot{display:none;background:var(--amber)}
+  .nav-player.on .dot{display:inline-block}
   .dot{width:8px;height:8px;border-radius:50%;background:var(--live);animation:blink 1.4s ease-in-out infinite}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+  .player{border-top:1px solid var(--line);background:rgba(20,16,25,.9)}
+  .player[hidden]{display:none}
+  .player-inner{max-width:var(--max);margin:0 auto;padding:8px 24px;display:flex;align-items:center;gap:14px;min-width:0}
+  .p-eq{display:inline-flex;gap:2px;align-items:flex-end;height:14px;flex:none}
+  .p-eq i{width:3px;height:100%;background:var(--amber);border-radius:1px;transform:scaleY(.3);transform-origin:bottom}
+  .player.playing .p-eq i{animation:bounce 1s ease-in-out infinite}
+  .player.playing .p-eq i:nth-child(2){animation-delay:.2s}.player.playing .p-eq i:nth-child(3){animation-delay:.4s}
+  .p-title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.84rem;color:var(--muted)}
+  .player.playing .p-title{color:var(--fg)}
+  .p-ctl{display:flex;gap:6px;align-items:center;flex:none}
+  .p-ctl button{font:inherit;font-size:.8rem;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-radius:999px;width:32px;height:32px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+  .p-ctl button:hover{border-color:var(--amber);color:var(--amber)}
+  .p-ctl .p-main{background:var(--amber);color:var(--night);border-color:var(--amber);width:38px;height:38px;font-size:.9rem}
+  .p-ctl .p-hide{width:auto;padding:0 12px;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .dock{position:fixed;right:16px;bottom:16px;z-index:60;width:200px;height:200px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+  .dock[hidden]{display:none}
+  .dock iframe{width:100%;height:100%;display:block;border:0}
+  @media(max-width:640px){.player-inner{padding:8px 14px;gap:10px}.p-ctl .p-hide{display:none}}
 
   /* ---------- hero ---------- */
   .hero{padding:96px 0 80px;position:relative;text-align:center;overflow:hidden}
@@ -264,14 +283,26 @@
   <nav aria-label="Main">
     <div class="logo">DJ <span>SYLVESTER</span></div>
     <ul class="nav-links">
-      <li><a class="nav-live" id="nav-live" href="#live"><span class="dot"></span>LIVE NOW</a></li>
-      <li><a href="#live">Live</a></li>
+      <li><a href="#" id="nav-player" class="nav-player"><span class="dot"></span>Radio</a></li>
       <li><a href="#app">App</a></li>
       <li><a href="#mixes">Mixes</a></li>
       <li><a class="book-link" href="#book">Book Me</a></li>
     </ul>
   </nav>
+  <div class="player" id="player" aria-label="Radio player">
+    <div class="player-inner">
+      <span class="p-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="p-title" id="p-title">Radio · press play</span>
+      <span class="p-ctl">
+        <button id="p-prev" type="button" aria-label="Previous">&#9198;</button>
+        <button id="p-play" type="button" aria-label="Play" class="p-main">&#9654;</button>
+        <button id="p-next" type="button" aria-label="Next">&#9197;</button>
+        <button id="p-hide" type="button" class="p-hide">Hide</button>
+      </span>
+    </div>
+  </div>
 </header>
+<div class="dock" id="dock" hidden><div id="yt"></div><audio id="aud" preload="none"></audio></div>
 
 <main>
 
@@ -292,27 +323,6 @@
       <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
     </div>
   </div>
-
-  <section id="live">
-    <div class="wrap">
-      <p class="sec-eyebrow">Live</p>
-      <h2>When the stream is on, it's on here.</h2>
-      <p class="prose">This page checks the Twitch channel every minute. The second a set goes live, the player lights up below — no link-hunting.</p>
-      <div class="live-panel">
-        <div class="live-head">
-          <span class="onair" id="onair">OFF AIR</span>
-          <span class="live-status" id="live-status">Not streaming right now — check back or book the next set.</span>
-          <a class="yt-link" id="yt-link" href="#" target="_blank" rel="noopener">▶ YOUTUBE</a>
-        </div>
-        <div class="live-body" id="live-body">
-          <div class="placeholder">
-            <span class="big">The decks are quiet.</span>
-            <span>Next stream appears here automatically.</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <section id="app">
     <div class="wrap">
@@ -346,7 +356,7 @@
     <div class="wrap">
       <p class="sec-eyebrow">Mixes</p>
       <h2>Hear the sets</h2>
-      <p class="prose">Clips and full mixes live on Instagram. Live sets stream on Twitch and YouTube when the decks are on.</p>
+      <p class="prose">Clips and full mixes live on Instagram. The radio bar at the top plays amapiano and afrobeats around the clock; live sets go out on Twitch.</p>
       <div class="mix-grid">
         <a class="mix-card" href="https://www.instagram.com/sl.ysl.yy" target="_blank" rel="noopener">
           <span class="tag">Instagram</span>
@@ -356,7 +366,7 @@
         <a class="mix-card" href="https://www.twitch.tv/metasly" target="_blank" rel="noopener">
           <span class="tag">Live</span>
           <h3>twitch.tv/metasly</h3>
-          <p>Full live sets. The player at the top of this page lights up automatically when a stream is on.</p>
+          <p>Full live sets and the 24/7 Jersey Club Radio stream.</p>
         </a>
       </div>
       <div class="rig">
@@ -427,18 +437,23 @@
 
 <script>
   /* ===== CONFIG — the only lines you should ever need to touch ===== */
-  const TWITCH_CHANNEL = "metasly";          // twitch.tv/metasly — enables the live player
-  const YOUTUBE_HANDLE = "clubgirlfm";       // youtube.com/@clubgirlfm — live simulcast link
+  // Radio queue. Each entry is one of:
+  //   { list: "<YouTube playlist id>" }        plays the whole playlist, in order
+  //   { video: "<YouTube video id>" }          one video (long mixes work great)
+  //   { src: "https://…/track.mp3", title }   your own hosted audio (R2 etc.) — plays in the bar, no video tile
+  const RADIO = [
+    { video: "O1sU1F6dZNk" },  // DJ Phaphane — Amapiano To The World, Paris Nights (1h04)
+    { list: "PLZjyOXTKuD2QzD05fjgxdwWB_Oqwlx-Bz" },  // Afrobeats 2026 playlist, 96 videos (~4.9h)
+    { video: "IsHohNfI6_c" },  // Scorpion Kings live set, Ultra South Africa (1h40)
+    { video: "AikTJfxbRI8" },  // Deep Amapiano Mix 2026 — Emotional Lounge Vol.47 (2h)
+    { list: "RDCLAK5uy_kmq8ZD0NbHbKkZZ6frtlEjd8khfeZrAd0" },  // YouTube Music: Afrobeats Now (~2.9h)
+    { video: "jlmzBp5IRGs" },  // Romeo Makota — Amapiano Mix 2026 (1h04)
+    { video: "kB174wUVm4o" },  // Mellow & Sleazy live at Soundset Sunday (53m)
+    { video: "gpmTutmYbhE" },  // musicbwoy — Trending Amapiano Aug 2026 (43m)
+  ];
   const APP_DOWNLOAD_URL = "";               // e.g. TestFlight or App Store link when ready
   const BOOKING_EMAIL = "sylvesterassiamahhcp@gmail.com";   // bookings@djsylvester.com has no mail routing while the zone is parked
   /* ================================================================= */
-
-  // youtube: /live resolves to the stream when live, channel page otherwise
-  if (YOUTUBE_HANDLE) {
-    const yt = document.getElementById("yt-link");
-    yt.href = `https://www.youtube.com/@${YOUTUBE_HANDLE}/live`;
-    yt.classList.add("on");
-  }
 
   // app CTA: switch from early-access mailto to real download link when set
   if (APP_DOWNLOAD_URL) {
@@ -461,35 +476,101 @@
     location.href = `mailto:${BOOKING_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   });
 
-  // twitch live detection via decapi (no auth needed); embeds player when live
-  async function checkLive() {
-    if (!TWITCH_CHANNEL) return;
-    try {
-      const res = await fetch(`https://decapi.me/twitch/uptime/${TWITCH_CHANNEL}`);
-      const text = (await res.text()).trim();
-      const live = res.ok && !/offline|error|not found|no user/i.test(text);
-      document.getElementById("onair").classList.toggle("on", live);
-      document.getElementById("onair").textContent = live ? "ON AIR" : "OFF AIR";
-      document.getElementById("nav-live").classList.toggle("on", live);
-      const status = document.getElementById("live-status");
-      const body = document.getElementById("live-body");
-      if (live) {
-        status.innerHTML = `<b>Live for ${text}</b> — pull up.`;
-        if (!body.querySelector("iframe")) {
-          const parents = ["djsylvester.com", "www.djsylvester.com", "djsylvester.sylvesterassiamahpm.workers.dev", "assiamahs.github.io", "localhost"]
-            .map(p => `parent=${p}`).join("&");
-          body.innerHTML = `<iframe src="https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&${parents}&muted=false" allowfullscreen title="DJ Sylvester live on Twitch"></iframe>`;
-        }
-      } else {
-        status.textContent = "Not streaming right now — check back or book the next set.";
-        if (body.querySelector("iframe")) {
-          body.innerHTML = `<div class="placeholder"><span class="big">The decks are quiet.</span><span>Next stream appears here automatically.</span></div>`;
-        }
-      }
-    } catch { /* network hiccup — keep current state */ }
+  /* ---------- radio player ----------
+     YouTube items play in the docked tile (YouTube's terms need a visible player, 200px minimum,
+     so Hide pauses and folds the tile instead of playing in the background).
+     Hosted audio items (src) play through the bar with nothing on screen. */
+  const $ = id => document.getElementById(id);
+  const bar = $("player"), dock = $("dock"), aud = $("aud"), titleEl = $("p-title"), playBtn = $("p-play"), navP = $("nav-player");
+  let yt = null, ytReady = false, idx = 0, playing = false, wantPlay = false, hidden = false;
+  try { hidden = localStorage.getItem("radio-hidden") === "1"; } catch {}
+  const cur = () => RADIO[idx % RADIO.length];
+  const isYT = it => !!(it.list || it.video);
+  const setPlaying = on => {
+    playing = on;
+    bar.classList.toggle("playing", on);
+    navP.classList.toggle("on", on);
+    playBtn.innerHTML = on ? "&#10074;&#10074;" : "&#9654;";
+    playBtn.setAttribute("aria-label", on ? "Pause" : "Play");
+  };
+  const showDock = on => { dock.hidden = !on; };
+
+  function loadYTApi() {
+    if (window.YT && window.YT.Player) { onYTReady(); return; }
+    window.onYouTubeIframeAPIReady = onYTReady;
+    const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s);
   }
-  checkLive();
-  setInterval(checkLive, 60000);
+  function onYTReady() {
+    if (yt) return;
+    yt = new YT.Player("yt", {
+      width: 200, height: 200,
+      playerVars: { autoplay: 0, controls: 1, rel: 0, playsinline: 1, modestbranding: 1, origin: location.origin },
+      events: {
+        onReady: () => { ytReady = true; loadCurrent(); },
+        onStateChange: e => {
+          if (e.data === YT.PlayerState.PLAYING) { setPlaying(true); showTitle(); }
+          else if (e.data === YT.PlayerState.PAUSED) setPlaying(false);
+          else if (e.data === YT.PlayerState.ENDED) {
+            const it = cur();
+            if (it.list) { const i = yt.getPlaylistIndex(), n = (yt.getPlaylist() || []).length; if (i < n - 1) return; } // playlist advances itself
+            next();
+          }
+        },
+        onError: () => next()
+      }
+    });
+  }
+  function showTitle() {
+    try {
+      const d = yt.getVideoData();
+      if (d && d.title) titleEl.textContent = d.title + (d.author ? " · " + d.author : "");
+    } catch {}
+  }
+  function loadCurrent() {
+    const it = cur();
+    if (isYT(it)) {
+      aud.pause();
+      if (!ytReady) { loadYTApi(); return; }
+      showDock(!hidden);
+      if (it.list) wantPlay ? yt.loadPlaylist({ list: it.list, listType: "playlist" }) : yt.cuePlaylist({ list: it.list, listType: "playlist" });
+      else wantPlay ? yt.loadVideoById(it.video) : yt.cueVideoById(it.video);
+      titleEl.textContent = "Loading…";
+    } else {
+      if (yt && ytReady) { try { yt.stopVideo(); } catch {} }
+      showDock(false);
+      aud.src = it.src; titleEl.textContent = it.title || it.src.split("/").pop();
+      if (wantPlay) aud.play().catch(() => setPlaying(false));
+    }
+  }
+  function play() {
+    wantPlay = true;
+    const it = cur();
+    if (isYT(it)) { if (!ytReady) { loadYTApi(); return; } if (hidden) { hidden = false; try { localStorage.setItem("radio-hidden", "0"); } catch {} showDock(true); $("p-hide").textContent = "Hide"; } yt.playVideo(); }
+    else aud.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+  }
+  function pause() { wantPlay = false; const it = cur(); if (isYT(it)) { if (ytReady) yt.pauseVideo(); } else aud.pause(); setPlaying(false); }
+  function next() { idx = (idx + 1) % RADIO.length; loadCurrent(); }
+  function prev() {
+    const it = cur();
+    if (isYT(it) && it.list && ytReady && yt.getPlaylistIndex() > 0) { yt.previousVideo(); return; }
+    idx = (idx - 1 + RADIO.length) % RADIO.length; loadCurrent();
+  }
+  playBtn.addEventListener("click", () => playing ? pause() : play());
+  $("p-next").addEventListener("click", () => { wantPlay = wantPlay || playing; const it = cur(); if (isYT(it) && it.list && ytReady) { const i = yt.getPlaylistIndex(), n = (yt.getPlaylist() || []).length; if (i < n - 1) { yt.nextVideo(); return; } } next(); });
+  $("p-prev").addEventListener("click", prev);
+  $("p-hide").addEventListener("click", () => {
+    hidden = !hidden; try { localStorage.setItem("radio-hidden", hidden ? "1" : "0"); } catch {}
+    if (hidden && isYT(cur())) pause();
+    showDock(!hidden && isYT(cur()) && ytReady);
+    $("p-hide").textContent = hidden ? "Show" : "Hide";
+  });
+  navP.addEventListener("click", e => { e.preventDefault(); bar.hidden = !bar.hidden; if (!bar.hidden) window.scrollTo({ top: 0, behavior: "smooth" }); });
+  aud.addEventListener("ended", next);
+  aud.addEventListener("play", () => setPlaying(true));
+  aud.addEventListener("pause", () => setPlaying(false));
+  if (hidden) $("p-hide").textContent = "Show";
+  // prime the first item so the title shows before the first click
+  if (isYT(cur())) loadYTApi(); else loadCurrent();
 </script>
 
 </body>
