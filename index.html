@@ -55,7 +55,7 @@
   .nav-links a{color:var(--muted);font-size:.8rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
   .nav-links a:hover{color:var(--fg);text-decoration:none}
   .nav-links .book-link{
-    color:var(--night);background:var(--amber);padding:9px 18px;border-radius:999px;
+    color:var(--night);background:var(--amber);padding:9px 18px;border-radius:999px;white-space:nowrap;
   }
   .nav-links .book-link:hover{background:#FFC466}
   @media(max-width:640px){.nav-links{gap:14px}.nav-links li:first-child{display:none}}
@@ -508,7 +508,8 @@
       events: {
         onReady: () => { ytReady = true; loadCurrent(); },
         onStateChange: e => {
-          if (e.data === YT.PlayerState.PLAYING) { setPlaying(true); showTitle(); }
+          if (e.data === YT.PlayerState.PLAYING) { setPlaying(true); showTitle(); showDock(!hidden); }
+          else if (e.data === YT.PlayerState.CUED) showTitle();
           else if (e.data === YT.PlayerState.PAUSED) setPlaying(false);
           else if (e.data === YT.PlayerState.ENDED) {
             const it = cur();
@@ -531,7 +532,7 @@
     if (isYT(it)) {
       aud.pause();
       if (!ytReady) { loadYTApi(); return; }
-      showDock(!hidden);
+      showDock(wantPlay && !hidden);
       if (it.list) wantPlay ? yt.loadPlaylist({ list: it.list, listType: "playlist" }) : yt.cuePlaylist({ list: it.list, listType: "playlist" });
       else wantPlay ? yt.loadVideoById(it.video) : yt.cueVideoById(it.video);
       titleEl.textContent = "Loading…";
@@ -561,7 +562,7 @@
   $("p-hide").addEventListener("click", () => {
     hidden = !hidden; try { localStorage.setItem("radio-hidden", hidden ? "1" : "0"); } catch {}
     if (hidden && isYT(cur())) pause();
-    showDock(!hidden && isYT(cur()) && ytReady);
+    showDock(!hidden && isYT(cur()) && ytReady && wantPlay);
     $("p-hide").textContent = hidden ? "Show" : "Hide";
   });
   navP.addEventListener("click", e => { e.preventDefault(); bar.hidden = !bar.hidden; if (!bar.hidden) window.scrollTo({ top: 0, behavior: "smooth" }); });
